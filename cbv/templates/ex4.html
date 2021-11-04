@@ -7,12 +7,7 @@
     <title>Document</title>
 </head>
 <body>
-    <a href="{% url 'cbv:go-to-youtube' %}">youtube redirect</a>
-    <br>
-    {{data}}
-    <hr />
-    {{posts.name}}
-    <br>
-    <a href="{% url 'cbv:redirect-task' posts.id %}">{{posts.name}}</a>
+    {{post.name}}
+    {{post.count}}
 </body>
 </html>

@@ -3,3 +3,4 @@ from django.db.models.base import Model
 
 class Post(models.Model):
     name = models.CharField(max_length=255)
+    count = models.IntegerField(null=True)
