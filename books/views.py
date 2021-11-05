@@ -3,28 +3,40 @@ from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from django.views.generic.edit import FormView
 from django.db.models import F
 from django.utils import timezone
 
 from .models import Book
+from .forms import AddForm
+
+
+class AddBookView(FormView):
+    template_name = 'add.html'
+    form_class = AddForm
+    success_url = '/books/'
+
+    def form_valid(self, form):
+        form.save()
+        return super().form_valid(form)
 
 
 class IndexView(ListView):
 
     model = Book
-    template_name = "books/home.html"
+    template_name = "home.html"
     context_object_name = "books"  # default = "object_list"
     paginate_by = 2
     # queryset = Book.objects.all()[:2]
 
     def get_queryset(self):
-        return Book.objects.all()[:2]
+        return Book.objects.all()
 
 
 class GenreView(ListView):
 
     model = Book
-    template_name = "books/home.html"
+    template_name = "home.html"
     context_object_name = "books"  # default = "object_list"
     paginate_by = 2
 
@@ -39,7 +51,7 @@ class BookDetailView(DetailView):
     # Additional stuff:
 
     # must include it if not the same name  default = "book_detail.html"
-    template_name = "books/book-detail.html"
+    template_name = "book-detail.html"
     context_object_name = 'book'  # in html {{book.title}}
 
     def get_context_data(self, **kwargs):
