@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, CreateView
 from django.db.models import F
 from django.utils import timezone
 
@@ -11,14 +11,28 @@ from .models import Book
 from .forms import AddForm
 
 
-class AddBookView(FormView):
-    template_name = 'add.html'
+# class AddBookView(FormView): ex: Sending Email
+#     template_name = 'add.html'
+#     form_class = AddForm
+#     success_url = '/books/'
+
+#     def form_valid(self, form):
+#         form.save()
+#         return super().form_valid(form)
+
+
+class AddBookView(CreateView):  # used for saving object to db
+
+    model = Book
     form_class = AddForm
     success_url = '/books/'
+    template_name = 'add.html'
+    success_url = '/books/'
 
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
+    # def get_initial(self, *args, **kwargs):
+    #     initial = super().get_initial(**kwargs)
+    #     initial['title'] = 'Enter Title'
+    #     return initial
 
 
 class IndexView(ListView):
