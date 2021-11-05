@@ -1,24 +1,16 @@
 from typing import List
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import FormView, CreateView, UpdateView
 from django.db.models import F
 from django.utils import timezone
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.views import redirect_to_login
 
 from .models import Book
 from .forms import AddForm
-
-
-# class AddBookView(FormView): ex: Sending Email
-#     template_name = 'add.html'
-#     form_class = AddForm
-#     success_url = '/books/'
-
-#     def form_valid(self, form):
-#         form.save()
-#         return super().form_valid(form)
 
 
 class AddBookView(CreateView):  # used for saving object to db
@@ -29,13 +21,27 @@ class AddBookView(CreateView):  # used for saving object to db
     template_name = 'add.html'
     success_url = '/books/'
 
-    # def get_initial(self, *args, **kwargs):
-    #     initial = super().get_initial(**kwargs)
-    #     initial['title'] = 'Enter Title'
-    #     return initial
+
+class UserAccessMixin(PermissionRequiredMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if (not self.request.user.is_authenticated):
+            return redirect_to_login(self.request.get_full_path(),
+                                     self.get_login_url(),
+                                     self.get_redirect_field_name()
+                                     )
+        if not self.has_permission():
+            return redirect('/books')
+        return super(UserAccessMixin, self).dispatch(request, *args, **kwargs)
 
 
-class BookEditView(UpdateView):  # used for saving object to db
+class BookEditView(UserAccessMixin, UpdateView):  # used for saving object to db
+
+    # raise the default page error if true (ex: 403 Forbidden)
+    raise_exception = False
+    permission_required = ('books.change_book', 'books.add_view')
+    permission_denied_message = ""
+    login_url = '/books/'
+    redirect_field_name = 'next'
 
     model = Book
     form_class = AddForm
